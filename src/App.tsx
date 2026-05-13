@@ -148,6 +148,9 @@ import MemberAttendancePage from './pages/member/MemberAttendance';
 import MemberPlansPage from './pages/member/MemberPlans';
 import MemberDietPlans from './pages/member/MemberDietPlans';
 import NotificationsList from './pages/member/NotificationsList';
+import MemberServices from './pages/member/MemberServices';
+import MemberHelp from './pages/member/MemberHelp';
+import MemberPayments from './pages/member/MemberPayments';
 import StaffDashboard from './pages/staff/StaffDashboard';
 import LoginGenerator from './pages/staff/LoginGenerator';
 
@@ -177,10 +180,14 @@ export default function App() {
           <Route path="/member/dashboard" element={<ProtectedRoute><MemberDashboard /></ProtectedRoute>} />
           <Route path="/member/profile" element={<ProtectedRoute><MemberProfile /></ProtectedRoute>} />
           <Route path="/member/attendance" element={<ProtectedRoute><MemberAttendancePage /></ProtectedRoute>} />
-          <Route path="/member/plans" element={<ProtectedRoute><MemberPlansPage /></ProtectedRoute>} />
+          <Route path="/member/my-plans" element={<ProtectedRoute><MemberPlansPage /></ProtectedRoute>} />
           <Route path="/member/diet" element={<ProtectedRoute><MemberDietPlans /></ProtectedRoute>} />
-          <Route path="/member/payments" element={<ProtectedRoute><PaymentList /></ProtectedRoute>} />
+          <Route path="/member/payments" element={<ProtectedRoute><MemberPayments /></ProtectedRoute>} />
+          <Route path="/member/services" element={<ProtectedRoute><MemberServices /></ProtectedRoute>} />
           <Route path="/member/notifications" element={<ProtectedRoute><NotificationsList /></ProtectedRoute>} />
+          <Route path="/member/help" element={<ProtectedRoute><MemberHelp /></ProtectedRoute>} />
+          <Route path="/payments/:paymentId/invoice" element={<ProtectedRoute><InvoiceView /></ProtectedRoute>} />
+
         {/* Placeholder routes for menus in Sidebar */}
         <Route 
           path="/members" 
@@ -545,7 +552,6 @@ export default function App() {
         {/* Diet System */}
         <Route path="/diet" element={<ProtectedRoute><DietManagement /></ProtectedRoute>} />
         <Route path="/diet-templates" element={<ProtectedRoute><DietTemplates /></ProtectedRoute>} />
-        <Route path="/members/:memberId/diet-plans" element={<ProtectedRoute><MemberDietPlans /></ProtectedRoute>} />
 
         {/* POS / Store */}
         <Route path="/pos/billing" element={<ProtectedRoute><POSBilling /></ProtectedRoute>} />
@@ -558,7 +564,6 @@ export default function App() {
         <Route path="/sms/bulk" element={<ProtectedRoute><SMSBulk /></ProtectedRoute>} />
         <Route path="/sms/history" element={<ProtectedRoute><SMSHistory /></ProtectedRoute>} />
         <Route path="/sms/templates" element={<ProtectedRoute><SMSTemplates /></ProtectedRoute>} />
-        <Route path="/notifications" element={<ProtectedRoute><NotificationsList /></ProtectedRoute>} />
 
         {/* Visitors */}
         <Route path="/visitors" element={<ProtectedRoute><VisitorsList /></ProtectedRoute>} />
@@ -599,8 +604,6 @@ export default function App() {
         <Route path="/search" element={<ProtectedRoute><GlobalSearch /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
         <Route path="/help" element={<ProtectedRoute><HelpSupport /></ProtectedRoute>} />
-
-        <Route path="/payments/:paymentId/invoice" element={<ProtectedRoute><InvoiceView /></ProtectedRoute>} />
       </Routes>
     </Router>
     </AuthProvider>

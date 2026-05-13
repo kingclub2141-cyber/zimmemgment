@@ -106,17 +106,19 @@ export default function Sidebar({ collapsed, setCollapsed, mobile, onClose }: Si
       ]
     },
     {
-      title: 'MY GYM',
+      title: 'MEMBER PANEL',
       icon: LayoutDashboard,
       roles: ['member'],
       items: [
         { label: 'Dashboard', path: '/member/dashboard', icon: LayoutDashboard },
         { label: 'My Profile', path: '/member/profile', icon: UserCircle },
-        { label: 'My Plans', path: '/member/plans', icon: CreditCard },
+        { label: 'My Plans', path: '/member/my-plans', icon: CreditCard },
         { label: 'My Attendance', path: '/member/attendance', icon: Calendar },
         { label: 'My Diet Plan', path: '/member/diet', icon: Apple },
         { label: 'My Payments', path: '/member/payments', icon: IndianRupee },
-        { label: 'Notifications', path: '/member/notifications', icon: Bell }
+        { label: 'My Services', path: '/member/services', icon: Gift },
+        { label: 'Notifications', path: '/member/notifications', icon: Bell },
+        { label: 'Help & Support', path: '/member/help', icon: HelpCircle }
       ]
     },
     {

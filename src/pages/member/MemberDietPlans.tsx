@@ -6,7 +6,8 @@ import { motion } from 'motion/react';
 
 export default function MemberDietPlans() {
   const { profile } = useAuth();
-  const [dietPlan, setDietPlan] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState(new Date().getDay() || 7);
+  const [dietPlans, setDietPlans] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,13 +19,12 @@ export default function MemberDietPlans() {
   const fetchDiet = async () => {
     try {
       const { data } = await supabase
-        .from('member_diet_plans')
+        .from('diet_plans')
         .select('*')
         .eq('member_id', profile.member_id)
-        .eq('status', 'Active')
-        .single();
+        .order('day_number', { ascending: true });
       
-      setDietPlan(data);
+      setDietPlans(data || []);
     } catch (error) {
       console.error('Error fetching diet:', error);
     } finally {
@@ -32,120 +32,147 @@ export default function MemberDietPlans() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  const days = [
+    { num: 1, name: 'Monday' },
+    { num: 2, name: 'Tuesday' },
+    { num: 3, name: 'Wednesday' },
+    { num: 4, name: 'Thursday' },
+    { num: 5, name: 'Friday' },
+    { num: 6, name: 'Saturday' },
+    { num: 7, name: 'Sunday' }
+  ];
 
-  const demoPlan = {
-    name: "Lean Muscle Gain (Special)",
-    kcal: 2800,
-    protein: "160g",
-    carbs: "240g",
-    fats: "70g",
-    meals: [
-      { time: "07:00 AM", title: "Pre-Workout", items: "1 Banana + 1 scoop Whey Protein" },
-      { time: "09:30 AM", title: "Breakfast", items: "4 Egg Whites + 1 cup Oats with Almonds" },
-      { time: "01:30 PM", title: "Lunch", items: "150g Grilled Chicken + 1 cup Brown Rice + Salad" },
-      { time: "05:00 PM", title: "Eve Snack", items: "Greek Yogurt + Handful of Walnuts" },
-      { time: "08:30 PM", title: "Dinner", items: "150g Paneer/Fish + Sauteed Vegetables" }
-    ]
-  };
+  const currentPlan = dietPlans.find(d => d.day_number === activeTab);
 
-  const plan = dietPlan || demoPlan;
+  if (loading) return <div className="flex items-center justify-center h-64"><Clock className="animate-spin text-[#E13D4B]" /></div>;
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-black text-gray-900">Nutrition & Diet</h1>
-          <p className="text-gray-500 font-medium italic">Fuel your transformation</p>
-        </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-rose-50 text-[#E13D4B] rounded-xl border border-rose-100">
-          <Flame size={18} className="animate-pulse" />
-          <span className="text-xs font-black uppercase tracking-widest">{plan.kcal} kcal Daily Target</span>
-        </div>
+      <div className="bg-[#141414] p-10 -mx-8 -mt-8 text-white">
+        <h1 className="text-4xl font-black uppercase tracking-tighter italic">Fuel Strategy</h1>
+        <p className="text-rose-500 font-black uppercase tracking-widest text-[10px] mt-2">Personalized 7-Day Nutrition Protocol</p>
+      </div>
+
+      {/* Day Selector */}
+      <div className="flex flex-wrap gap-2 mb-8">
+        {days.map((day) => (
+          <button
+            key={day.num}
+            onClick={() => setActiveTab(day.num)}
+            className={`px-6 py-3 border-2 border-[#141414] text-[10px] font-black uppercase tracking-widest transition-all ${
+              activeTab === day.num 
+                ? 'bg-[#141414] text-white shadow-[4px_4px_0px_0px_rgba(225,61,75,1)]' 
+                : 'bg-white text-[#141414] hover:bg-gray-50'
+            }`}
+          >
+            {day.name}
+          </button>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Macros View */}
+        {/* Meals View */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="grid grid-cols-3 gap-4">
-             <div className="bg-white p-6 rounded-3xl shadow-xl shadow-gray-100 border border-gray-50 text-center">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Protein</p>
-                <p className="text-2xl font-black text-blue-600">{plan.protein}</p>
-             </div>
-             <div className="bg-white p-6 rounded-3xl shadow-xl shadow-gray-100 border border-gray-50 text-center">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Carbs</p>
-                <p className="text-2xl font-black text-amber-600">{plan.carbs}</p>
-             </div>
-             <div className="bg-white p-6 rounded-3xl shadow-xl shadow-gray-100 border border-gray-50 text-center">
-                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Fats</p>
-                <p className="text-2xl font-black text-rose-600">{plan.fats}</p>
-             </div>
-          </div>
-
-          <div className="bg-white rounded-3xl shadow-xl shadow-gray-100 border border-gray-50 overflow-hidden">
-            <div className="p-6 border-b border-gray-50 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center text-green-600">
-                  <Apple size={18} />
+          <div className="bg-white border-4 border-[#141414] shadow-[12px_12px_0px_0px_rgba(20,20,20,1)] overflow-hidden">
+            <div className="p-6 border-b-4 border-[#141414] bg-[#fdfdfd] flex items-center justify-between">
+              <h2 className="text-sm font-black uppercase tracking-widest flex items-center gap-2">
+                <Apple size={18} className="text-green-500" /> {days.find(d => d.num === activeTab)?.name}'s Meals
+              </h2>
+              {currentPlan && (
+                <div className="flex items-center gap-2 text-rose-500">
+                  <Flame size={14} />
+                  <span className="text-[10px] font-black uppercase tracking-widest">{currentPlan.total_calories || '--'} Kcal</span>
                 </div>
-                <h3 className="text-sm font-black uppercase tracking-widest">Daily Meal Plan</h3>
-              </div>
-              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Today's Schedule</span>
+              )}
             </div>
-            <div className="divide-y divide-gray-50">
-              {plan.meals.map((meal, i) => (
-                <div key={i} className="p-6 flex gap-6 hover:bg-gray-50 transition-all group">
-                  <div className="text-center min-w-[70px]">
-                    <p className="text-xs font-black text-gray-900 leading-tight">{meal.time.split(' ')[0]}</p>
-                    <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest">{meal.time.split(' ')[1]}</p>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">{meal.title}</h4>
-                      <div className="h-px bg-gray-100 flex-1" />
+            
+            {currentPlan ? (
+              <div className="divide-y-2 divide-[#141414]">
+                {[
+                  { title: 'Breakfast', menu: currentPlan.breakfast, time: '08:30 AM' },
+                  { title: 'Lunch', menu: currentPlan.lunch, time: '01:30 PM' },
+                  { title: 'Evening Snacks', menu: currentPlan.snacks, time: '05:30 PM' },
+                  { title: 'Dinner', menu: currentPlan.dinner, time: '09:00 PM' }
+                ].map((meal, idx) => (
+                  <div key={idx} className="p-8 flex gap-8 group hover:bg-rose-50 transition-colors">
+                    <div className="w-24 shrink-0">
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{meal.time}</p>
+                      <h4 className="text-xs font-black uppercase tracking-tighter group-hover:text-[#E13D4B] transition-colors">{meal.title}</h4>
                     </div>
-                    <p className="text-sm font-medium text-gray-600 leading-relaxed">{meal.items}</p>
+                    <div className="flex-1 flex items-start gap-4">
+                      <div className="w-1 self-stretch bg-[#141414] opacity-10 group-hover:opacity-100 transition-all rounded-full" />
+                      <p className="text-sm font-bold text-gray-700 leading-relaxed py-1">{meal.menu || 'Not specified for today.'}</p>
+                    </div>
                   </div>
-                  <button className="w-8 h-8 rounded-full border-2 border-gray-100 flex items-center justify-center text-gray-300 group-hover:border-green-500 group-hover:text-green-500 transition-all">
-                    <CheckCircle2 size={16} />
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="p-20 text-center">
+                 <div className="w-16 h-16 bg-gray-50 border-2 border-dashed border-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Apple size={24} className="opacity-20" />
+                 </div>
+                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">No diet plan uploaded for this day</p>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Sidebar Info */}
+        {/* Support Info */}
         <div className="space-y-6">
-          <div className="bg-gray-900 rounded-3xl p-8 text-white relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#E13D4B] rounded-full -mr-16 -mt-16 blur-3xl opacity-20 group-hover:opacity-40 transition-opacity" />
-            <h3 className="text-lg font-black leading-tight mb-4 uppercase tracking-tighter">Download PDF Receipt</h3>
-            <p className="text-xs text-white/60 font-medium mb-6 leading-relaxed">Keep your diet reference offline for easy access anywhere.</p>
-            <button className="w-full py-3 bg-[#E13D4B] text-white font-black rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-[#c93542] transition-all">
-              Download Plan <ArrowRight size={14} />
-            </button>
+          <div className="bg-[#141414] text-white p-8 border-4 border-[#141414] shadow-[8px_8px_0px_0px_rgba(20,20,20,1)]">
+             <h3 className="text-sm font-black uppercase tracking-[0.2em] mb-6 text-rose-500">Coach Guidance</h3>
+             <ul className="space-y-4">
+                {[
+                  "Stay hydrated throughout the day.",
+                  "Avoid processed sugars entirely.",
+                  "Try to have dinner 2 hours before bed.",
+                  "Include fiber in every major meal."
+                ].map((tip, i) => (
+                  <li key={i} className="flex gap-3 text-xs font-bold leading-relaxed group">
+                    <div className="w-4 h-4 rounded bg-[#E13D4B] flex items-center justify-center shrink-0 mt-0.5 group-hover:scale-110 transition-transform">
+                      <CheckCircle2 size={10} className="text-white" />
+                    </div>
+                    <span className="opacity-70 group-hover:opacity-100 transition-opacity">{tip}</span>
+                  </li>
+                ))}
+             </ul>
           </div>
 
-          <div className="bg-white rounded-3xl shadow-xl shadow-gray-100 border border-gray-50 p-6">
-             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-amber-50 rounded-lg text-amber-600">
-                <Info size={16} />
-              </div>
-              <h4 className="text-xs font-black text-gray-900 uppercase tracking-widest">Coaching Notes</h4>
-             </div>
-             <ul className="space-y-3">
-               {[
-                 "Drink at least 4L of water daily.",
-                 "Avoid salt after 8:30 PM.",
-                 "Prioritize sleep for muscle recovery.",
-                 "Chew slowly and mindfully."
-               ].map((note, i) => (
-                 <li key={i} className="flex gap-3 text-xs font-medium text-gray-500 leading-relaxed">
-                   <div className="w-1 h-1 bg-[#E13D4B] rounded-full mt-1.5 shrink-0" />
-                   {note}
-                 </li>
-               ))}
-             </ul>
+          <div className="bg-white border-4 border-[#141414] p-8 shadow-[8px_8px_0px_0px_rgba(20,20,20,1)]">
+             <h3 className="text-sm font-black uppercase tracking-widest mb-4">Macros Overview</h3>
+             {currentPlan ? (
+                <div className="space-y-4">
+                   <div>
+                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-1">
+                        <span className="text-blue-500">Protein</span>
+                        <span>{currentPlan.protein || '--'}g</span>
+                     </div>
+                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-blue-500 w-[60%]" />
+                     </div>
+                   </div>
+                   <div>
+                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-1">
+                        <span className="text-amber-500">Carbs</span>
+                        <span>{currentPlan.carbs || '--'}g</span>
+                     </div>
+                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-amber-500 w-[45%]" />
+                     </div>
+                   </div>
+                   <div>
+                     <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-1">
+                        <span className="text-rose-500">Fats</span>
+                        <span>{currentPlan.fats || '--'}g</span>
+                     </div>
+                     <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-rose-500 w-[30%]" />
+                     </div>
+                   </div>
+                </div>
+             ) : (
+                <p className="text-[10px] font-bold text-gray-400 italic">No macro data available.</p>
+             )}
           </div>
         </div>
       </div>
